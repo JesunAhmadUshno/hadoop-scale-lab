@@ -34,3 +34,15 @@ exclude the document from Job 2 identically; Job 1 is unaffected.
 This is an interpretation note on an edge case, not a protocol
 change: the shared-code construction makes the arms agree by
 construction, which the equivalence tests exercise (fixture doc 6).
+
+## D3. Timed runs avoid the host's scheduled jobs (2026-11-08)
+
+The R610 gains two scheduled jobs from the P23 recovery tests
+(server-and-networking-lab): a nightly backup at 03:15 UTC and an
+hourly baseline check. Either could land inside a timed cell and
+inflate one arm's time. Before any run, the schedule rule is: no
+timed cell starts between 03:15 and 04:00 UTC or in the first five
+minutes of an hour, and a cell that would cross one of those windows
+waits. This is a scheduling note, not a change to the frozen
+protocol; co-tenancy at each run is recorded in AUDIT.md as the
+pre-registration requires.

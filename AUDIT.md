@@ -1,13 +1,17 @@
-# Audit
+# Audit (the study report)
 
-Author's audit of this build against the programme charter.
-State at audit time: Phase 1 complete; Phase 2 (all timed runs)
-blocked on SSH access to the machine of record, verified live on
-2026-11-08 (BlackBoxV2 hop answers with its hostname; the R610
-answers Permission denied (publickey), exactly the expected state
-until the coordinator key is installed).
+This file is the report in the portfolio standard's sense. It keeps
+the name AUDIT.md because the locked PREREGISTRATION.md names it as
+the place where co-tenancy during runs is recorded.
 
-## Charter gates
+Status, 2026-11-08: Phase 1 is complete. Phase 2 (every timed run)
+has not started. The machine of record, the R610, is reachable through
+the BlackBoxV2 hop, but it refused this programme's SSH key
+("Permission denied (publickey)"). That stays true until the key is
+installed. Measured results, when they exist, are generated into
+RESULTS.md by scripts/make_results.py.
+
+## How the evidence is protected
 
 1. Pre-registration before results. PREREGISTRATION.md is the
    first content commit (d06513e), written before any code, corpus
@@ -86,37 +90,18 @@ until the coordinator key is installed).
   Phase 2 close, on the measured verdicts, and its model,
   noul, and route will be recorded here and in RESULTS.md.
 
-## Grade: 3,400 of 10,000 (Phase 1 state)
+## Threats to validity
 
-Deductions, itemized:
-
-- 4,000: no measured results. H1 to H4 are all untested; the
-  study's core deliverable (the numbers) does not exist yet.
-  This is a blocked state, honestly labelled, not a shortfall
-  that wording can soften.
-- 1,200: the Compose cluster has never run anywhere. CI
-  validates the compose file's structure (docker compose config),
-  and that is all: daemon startup order, the config mount at
-  runtime, the derived image build, and python3 availability
-  inside task containers are unverified.
-- 600: the Phase 2 driver's cluster-facing code paths are
-  untested end to end (counter display-name parsing, fsck
-  parsing, large-output collection).
-- 300: the Spark arm (H4) is written but its YARN submission
-  path from the apache/spark client image is unverified.
-- 200: corpus substitution (D1). Forced by the source, fully
-  documented, but the abstracts corpus was the brief's first
-  choice and the switch is a deviation.
-- 150: the baseline moves token rows into DuckDB through a
-  temporary CSV; honest and documented, but it is the known
-  inelegance a reviewer will find first at the 5 GiB scale.
-- 150: Jev claim_check deferred to Phase 2 close (no claims
-  exist yet); the gate is scheduled, not skipped.
-
-What the grade credits: a genuinely locked pre-registration with
-decidable pass lines; a checksum-equality regime implemented in
-the driver, not just promised; byte-equivalence of both jobs
-proven on this machine and on a real-corpus slice; a capped,
-isolated cluster design that cannot squeeze the host's other
-duties; and an awaiting-runs RESULTS.md that cannot be mistaken
-for results.
+- One machine, one shared host. The R610 also runs Penpot, Cockpit
+  and n8n, and from the P23 recovery tests (server-and-networking-lab)
+  it gains a nightly backup at 03:15 UTC and an hourly baseline check.
+  Timed cells avoid 03:15 to 04:00 UTC and the first five minutes of
+  every hour, and the co-tenancy at each run is recorded here.
+- Pseudo-distributed cluster. All daemons share one host's disks and
+  network, so HDFS replication and shuffle cost less network time
+  than on separate machines. The result is claimed for this
+  configuration, not for a multi-node cluster.
+- Three timed runs per cell give a median and a range, not a
+  confidence interval.
+- The baseline is one tuned design (DuckDB, one process). A different
+  single-node design could be faster or slower.

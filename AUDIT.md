@@ -57,6 +57,19 @@ until the coordinator key is installed).
 - DECISIONS.md D2: zero-token documents fall in no length band;
   both arms exclude them identically via the shared band
   function.
+- Download incident, 2026-11-08: the first corpus download's
+  connection dropped and a plain curl --retry restarted the file
+  from zero; a size-only check briefly read the file as complete.
+  The MD5 gate in scripts/fetch_corpus.sh caught the bad state
+  (hash mismatch, nothing recorded), the file was re-downloaded,
+  and the final copy verifies exactly against the publisher's
+  MD5 (4f0f5f9704207360eaa9471fb088acd3) with SHA-256
+  bb9318dd1045cd0e0f0e5ea9329b1d61a639590758427fd4275a2926fa6a5272
+  in results/corpus_manifest.json. The fetch script now resumes
+  (-C -) instead of restarting. A full bzip2 stream test of the
+  final copy also passes (an earlier stream test, run during the
+  unsettled download window, had exited 2; the retest on the
+  verified file is clean).
 - The cluster stack (docker-compose.yml, docker/) has never been
   executed: the development VM has no Docker. Image build,
   config mounts, daemon startup, the Streaming jar path, and
@@ -81,9 +94,11 @@ Deductions, itemized:
   study's core deliverable (the numbers) does not exist yet.
   This is a blocked state, honestly labelled, not a shortfall
   that wording can soften.
-- 1,200: the Compose cluster has never run anywhere. Daemon
-  startup order, the config mount, the derived image build, and
-  python3 availability inside task containers are unverified.
+- 1,200: the Compose cluster has never run anywhere. CI
+  validates the compose file's structure (docker compose config),
+  and that is all: daemon startup order, the config mount at
+  runtime, the derived image build, and python3 availability
+  inside task containers are unverified.
 - 600: the Phase 2 driver's cluster-facing code paths are
   untested end to end (counter display-name parsing, fsck
   parsing, large-output collection).

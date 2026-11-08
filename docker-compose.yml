@@ -1,0 +1,140 @@
+# Pseudo-distributed Hadoop 3.3.6 cluster for the scale study.
+# Project name is fixed so nothing outside this study is ever
+# addressed by the compose commands in scripts/run_study.py.
+#
+# Aggregate caps (frozen in PREREGISTRATION.md): CPUs
+# 1 + 3x0.5 + 1 + 3 + 0.5 = 7 of the allowed 8; memory
+# 2 + 3x1.5 + 2 + 12 + 1 = 21.5 GiB of the allowed 24 GiB.
+# The spark-client profile adds its own small container only while
+# the optional H4 arm runs.
+
+name: hadoop-scale-lab
+
+x-hadoop-common: &hadoop-common
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  image: hadoop-scale-lab/hadoop:3.3.6-py
+  volumes:
+    - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+    - ./jobs:/work/jobs:ro
+    - ./src:/work/src:ro
+
+services:
+  namenode:
+    <<: *hadoop-common
+    hostname: namenode
+    command: >
+      bash -c "if [ ! -d /data/nn/current ]; then
+      hdfs namenode -format -force -nonInteractive; fi;
+      exec hdfs namenode"
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - nn_data:/data
+    ports:
+      - "19870:9870"
+    cpus: 1.0
+    mem_limit: 2g
+
+  datanode1:
+    <<: *hadoop-common
+    hostname: datanode1
+    command: ["hdfs", "datanode"]
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - dn1_data:/data
+    depends_on:
+      - namenode
+    cpus: 0.5
+    mem_limit: 1536m
+
+  datanode2:
+    <<: *hadoop-common
+    hostname: datanode2
+    command: ["hdfs", "datanode"]
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - dn2_data:/data
+    depends_on:
+      - namenode
+    cpus: 0.5
+    mem_limit: 1536m
+
+  datanode3:
+    <<: *hadoop-common
+    hostname: datanode3
+    command: ["hdfs", "datanode"]
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - dn3_data:/data
+    depends_on:
+      - namenode
+    cpus: 0.5
+    mem_limit: 1536m
+
+  resourcemanager:
+    <<: *hadoop-common
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - "18088:8088"
+    cpus: 1.0
+    mem_limit: 2g
+
+  nodemanager:
+    <<: *hadoop-common
+    hostname: nodemanager
+    command: ["yarn", "nodemanager"]
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - ./jobs:/work/jobs:ro
+      - ./src:/work/src:ro
+      - nm_data:/data
+    depends_on:
+      - resourcemanager
+      - namenode
+    cpus: 3.0
+    mem_limit: 12g
+
+  client:
+    <<: *hadoop-common
+    hostname: client
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - ./jobs:/work/jobs:ro
+      - ./src:/work/src:ro
+      - ./data:/work/data:ro
+    depends_on:
+      - namenode
+      - resourcemanager
+    cpus: 0.5
+    mem_limit: 1g
+
+  # Optional arm (H4): Spark on YARN, client mode, same cluster.
+  spark-client:
+    image: apache/spark:3.5.3
+    hostname: spark-client
+    command: ["sleep", "infinity"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      YARN_CONF_DIR: /opt/hadoop/etc/hadoop
+    volumes:
+      - ./docker/conf:/opt/hadoop/etc/hadoop:ro
+      - ./jobs:/work/jobs:ro
+      - ./src:/work/src:ro
+      - ./spark:/work/spark:ro
+    depends_on:
+      - namenode
+      - resourcemanager
+    profiles:
+      - spark
+    cpus: 0.5
+    mem_limit: 2g
+
+volumes:
+  nn_data:
+  dn1_data:
+  dn2_data:
+  dn3_data:
+  nm_data:

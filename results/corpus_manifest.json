@@ -1,0 +1,10 @@
+{
+  "source": {
+    "bytes": 3438896364,
+    "file": "enwikisource-20261101-pages-articles.xml.bz2",
+    "md5_published": "4f0f5f9704207360eaa9471fb088acd3",
+    "md5_verified": true,
+    "sha256": "bb9318dd1045cd0e0f0e5ea9329b1d61a639590758427fd4275a2926fa6a5272",
+    "url": "https://dumps.wikimedia.org/enwikisource/20261101/enwikisource-20261101-pages-articles.xml.bz2"
+  }
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode:9000</value>
+  </property>
+  <!-- hadoop.tmp.dir intentionally left at the Hadoop default
+       (/tmp/hadoop-<user>): not every container mounts /data. -->
+</configuration>

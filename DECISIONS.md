@@ -23,3 +23,14 @@ documents), which fits the study's document-analytics framing at least
 as well as abstracts: digitized long documents are the actual workload
 of the digitization pipelines the README discusses. Deviation and
 reason recorded here, before any run, per the charter.
+
+## D2. Zero-token documents in Job 2
+
+A page can survive stripping with non-empty text but zero tokens
+(for example, only punctuation). The frozen bands start at 1 token,
+so such a document falls in no band. Both arms use the shared
+common.band_index, which returns None for a zero count, and both
+exclude the document from Job 2 identically; Job 1 is unaffected.
+This is an interpretation note on an edge case, not a protocol
+change: the shared-code construction makes the arms agree by
+construction, which the equivalence tests exercise (fixture doc 6).

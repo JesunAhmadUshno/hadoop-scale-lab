@@ -28,6 +28,22 @@
     <name>yarn.app.mapreduce.am.command-opts</name>
     <value>-Xmx1024m</value>
   </property>
+  <!-- The AppMaster and task environments must be told where the
+       MapReduce distribution lives, or the AM cannot load
+       MRAppMaster (DECISIONS.md D7; prescribed by the job's own
+       error output at the first Phase 2 attempt). -->
+  <property>
+    <name>yarn.app.mapreduce.am.env</name>
+    <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+  </property>
+  <property>
+    <name>mapreduce.map.env</name>
+    <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.env</name>
+    <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+  </property>
   <!-- mapreduce.job.reduces is set per job by the run scripts
        (frozen at 4 for both jobs in PREREGISTRATION.md). -->
 </configuration>

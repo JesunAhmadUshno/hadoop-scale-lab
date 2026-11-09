@@ -1,0 +1,31 @@
+{
+  "docs_bytes": 1984437310,
+  "docs_file": "docs.tsv",
+  "docs_sha256": "f3f42c2e73f34053676683d2d7bc722df50bf7e8a7ab006de5e6e13fe30d0faa",
+  "documents": 648182,
+  "skipped": {
+    "empty_after_strip": 0,
+    "non_namespace_0": 4014595,
+    "redirects": 135041
+  },
+  "source_file": "enwikisource-20261101-pages-articles.xml.bz2",
+  "subsets": {
+    "0.1GiB": {
+      "bytes": 107391240,
+      "docs": 10353,
+      "file": "docs_0.1GiB.tsv",
+      "sha256": "62891ecf1b6e3970a8d7e6608ca1d0dc05f341bd446fb552a0be780a08761774",
+      "target_bytes": 107374182
+    },
+    "1GiB": {
+      "bytes": 1073748348,
+      "docs": 144705,
+      "file": "docs_1GiB.tsv",
+      "sha256": "56cfe5bdc973a505c3d5bce4db4dc0336e5a0f96e5c8885d018f7f2abb606750",
+      "target_bytes": 1073741824
+    }
+  },
+  "targets_not_reached": [
+    "5GiB"
+  ]
+}

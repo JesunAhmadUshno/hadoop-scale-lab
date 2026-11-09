@@ -5,6 +5,17 @@ Versions follow Semantic Versioning; no release is tagged yet.
 
 ## [Unreleased]
 
+### Added
+- 2026-11-09: Phase 2 complete. The timed matrix ran on the R610:
+  H1 CONFIRMED, H2 INCONCLUSIVE (small-file cell stopped
+  unmeasured, DECISIONS.md D11), H3 INCONCLUSIVE, H4 REFUTED.
+  RESULTS.md generated from results/raw_runs.jsonl (65 records).
+  DECISIONS.md D4 to D14 record the Phase 2 environment
+  completions and the ladder re-anchor; the Phase 2 entries were
+  renumbered one up in the standard-v2 merge (see the numbering
+  note in DECISIONS.md). Jev claim_check at close: REVIEW (noul
+  0.24), hand-verified, recorded in AUDIT.md.
+
 ### Changed
 - 2026-11-08: Adopted the portfolio standard v2. README opens with the
   question, headline, field, job family and verdict. AUDIT.md is the

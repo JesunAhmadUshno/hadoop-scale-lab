@@ -1,0 +1,22 @@
+{
+  "0.1GiB_combined": {
+    "bytes": 107391240,
+    "files": 1,
+    "max_bytes": 134217728
+  },
+  "1GiB_combined": {
+    "bytes": 1073748348,
+    "files": 9,
+    "max_bytes": 134217728
+  },
+  "1GiB_small": {
+    "bytes": 1073748348,
+    "files": 1055,
+    "max_bytes": 1048576
+  },
+  "full_combined": {
+    "bytes": 1984437310,
+    "files": 15,
+    "max_bytes": 134217728
+  }
+}

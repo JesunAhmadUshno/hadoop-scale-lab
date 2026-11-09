@@ -14,7 +14,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "results", "raw_runs.jsonl")
 OUT = os.path.join(ROOT, "RESULTS.md")
-SCALES = ["0.1GiB", "1GiB", "5GiB"]
+SCALES = ["0.1GiB", "1GiB", "full"]
 
 
 def load_rows():
@@ -44,13 +44,13 @@ def median_wall(rows, **match):
 
 def verdict_h1(rows):
     r_small = ratio(rows, "ii", "0.1GiB")
-    r_big = ratio(rows, "ii", "5GiB")
+    r_big = ratio(rows, "ii", "full")
     if r_small is None or r_big is None:
         return "INCONCLUSIVE", "a needed cell is missing or void"
     if r_big <= 1.0 or r_big <= 0.5 * r_small:
-        return "CONFIRMED", "R(5 GiB)=%.3f, R(0.1 GiB)=%.3f" % (r_big, r_small)
+        return "CONFIRMED", "R(full)=%.3f, R(0.1 GiB)=%.3f" % (r_big, r_small)
     if r_big >= r_small:
-        return "REFUTED", "R(5 GiB)=%.3f >= R(0.1 GiB)=%.3f" % (r_big, r_small)
+        return "REFUTED", "R(full)=%.3f >= R(0.1 GiB)=%.3f" % (r_big, r_small)
     return "INCONCLUSIVE", "gap narrowed by less than half: %.3f vs %.3f" % (
         r_big, r_small)
 
@@ -91,9 +91,9 @@ def ingest_wall(rows, rf):
 
 def verdict_h3(rows):
     w1, w3 = ingest_wall(rows, 1), ingest_wall(rows, 3)
-    t1 = median_wall(rows, arm="mapreduce", job="ii", scale="5GiB",
+    t1 = median_wall(rows, arm="mapreduce", job="ii", scale="full",
                      layout="combined", rf=1, suffix="_h3")
-    t3 = median_wall(rows, arm="mapreduce", job="ii", scale="5GiB",
+    t3 = median_wall(rows, arm="mapreduce", job="ii", scale="full",
                      layout="combined", rf=3, suffix="_h3")
     if None in (w1, w3, t1, t3):
         return "INCONCLUSIVE", "a needed cell is missing or void"
@@ -108,8 +108,8 @@ def verdict_h3(rows):
 
 
 def verdict_h4(rows):
-    spark = median_wall(rows, arm="spark", job="ii", scale="5GiB")
-    mr = median_wall(rows, arm="mapreduce", job="ii", scale="5GiB",
+    spark = median_wall(rows, arm="spark", job="ii", scale="full")
+    mr = median_wall(rows, arm="mapreduce", job="ii", scale="full",
                      layout="combined", rf=1, suffix="")
     if spark is None:
         return "NOT TESTED", "optional arm not run"

@@ -35,7 +35,23 @@ This is an interpretation note on an edge case, not a protocol
 change: the shared-code construction makes the arms agree by
 construction, which the equivalence tests exercise (fixture doc 6).
 
-## D3. DuckDB version on the machine of record: 1.4.3, not 2.0.0
+## D3. Timed runs avoid the host's scheduled jobs (2026-11-08)
+
+The R610 gains two scheduled jobs from the P23 recovery tests
+(server-and-networking-lab): a nightly backup at 03:15 UTC and an
+hourly baseline check. Either could land inside a timed cell and
+inflate one arm's time. Before any run, the schedule rule is: no
+timed cell starts between 03:15 and 04:00 UTC or in the first five
+minutes of an hour, and a cell that would cross one of those windows
+waits. This is a scheduling note, not a change to the frozen
+protocol; co-tenancy at each run is recorded in AUDIT.md as the
+pre-registration requires.
+
+## Numbering note (2026-11-09, standard-v2 merge)
+
+The Phase 2 entries below were drafted as D3 to D13 while PR #1 (portfolio standard v2) was merged with its own D3 (the scheduled-jobs rule above). On merge, the Phase 2 entries were renumbered one up, to D4 to D14, in the same order, and cross-references with them were updated. The void-cell note in results/raw_runs.jsonl was updated to match (D10 to D11); none of its measurements changed.
+
+## D4. DuckDB version on the machine of record: 1.4.3, not 2.0.0
 
 Recorded during Phase 2 setup, before any timed run. The machine
 of record's CPUs (Intel Xeon E5540) have SSE4.2 but no AVX. The
@@ -55,7 +71,7 @@ the R610 under 1.4.3 (16 of 16 tests). CI keeps the locked 2.0.0
 on AVX2-capable runners. This is an environment substitution,
 disclosed here and in AUDIT.md, not a protocol change.
 
-## D4. Derived cluster image: yum from vault.centos.org, Python 3.6.8
+## D5. Derived cluster image: yum from vault.centos.org, Python 3.6.8
 
 Recorded during Phase 2 setup, before any timed run. The Phase 1
 Dockerfile assumed the pinned apache/hadoop:3.3.6 image was
@@ -79,7 +95,7 @@ must hash identically to the baseline's or the cell is void,
 so any such divergence stops the study loudly instead of
 contaminating a number.
 
-## D5. capacity-scheduler.xml added to the mounted conf directory
+## D6. capacity-scheduler.xml added to the mounted conf directory
 
 Recorded during Phase 2 setup, before any timed run. The Compose
 stack mounts docker/conf over the image's /opt/hadoop/etc/hadoop,
@@ -95,7 +111,7 @@ mode and live DataNodes); the dead ResourceManager was found by
 inspecting container state, and YARN health is verified
 explicitly (yarn node -list) before the matrix starts.
 
-## D6. Scale ladder re-anchored: the top point is the full corpus
+## D7. Scale ladder re-anchored: the top point is the full corpus
 
 Recorded during Phase 2 setup, before any timed run, under the
 re-anchoring rule PREREGISTRATION.md itself freezes for exactly
@@ -119,7 +135,7 @@ the same commit as this amendment; no threshold, run count, or
 verdict rule changed. data/docs_full.tsv is a byte copy of the
 full extracted stream (data/docs.tsv).
 
-## D7. mapred-site.xml: HADOOP_MAPRED_HOME env for the AppMaster
+## D8. mapred-site.xml: HADOOP_MAPRED_HOME env for the AppMaster
 
 Recorded during Phase 2, before any MapReduce run completed (the
 four baseline rows already in results/raw_runs.jsonl are
@@ -136,7 +152,7 @@ HADOOP_MAPRED_HOME=/opt/hadoop, exactly as the error prescribes.
 No job parameter frozen in PREREGISTRATION.md changes (the
 reducer count and memory settings were already present).
 
-## D8. Streaming tasks get PYTHONPATH=. via -cmdenv
+## D9. Streaming tasks get PYTHONPATH=. via -cmdenv
 
 Recorded during Phase 2, before any MapReduce run completed.
 The first cluster attempts failed in every map task with
@@ -157,7 +173,7 @@ at 0.1 GiB, 49.8 to 50.3 s) are discarded with the log and
 re-measured under the final harness, so every cell's median
 rests on exactly the registered three timed runs.
 
-## D9. Streaming tasks get PYTHONIOENCODING=utf-8; counters parsed from stdout
+## D10. Streaming tasks get PYTHONIOENCODING=utf-8; counters parsed from stdout
 
 Recorded during Phase 2, after the first MapReduce cells ran and
 were voided by the frozen checksum rule, before any MapReduce
@@ -182,7 +198,7 @@ again, the matrix restarts with a clean run log and every cell
 is re-measured under the final harness (the voided cells were
 excluded by the frozen rule in any case).
 
-## D10. The small-file cell (H2) is stopped unmeasured; the rest of the matrix completes
+## D11. The small-file cell (H2) is stopped unmeasured; the rest of the matrix completes
 
 Recorded during Phase 2, at the moment of the stop, before the
 H3 block ran. The H2 cell (Job 1, 1 GiB, small layout: 1,055
@@ -211,7 +227,7 @@ scale point) runs immediately after this entry, executed
 through the driver's own ingest and timed-cell functions with
 the same arguments matrix() passes.
 
-## D11. Spark arm: spark-submit is called by absolute path
+## D12. Spark arm: spark-submit is called by absolute path
 
 Recorded during Phase 2, before any Spark run completed (the
 four first invocations exited 1 and logged nothing). The
@@ -223,7 +239,7 @@ The driver now calls /opt/spark/bin/spark-submit. Path only;
 the Spark job, its arguments, and the H4 comparison are
 unchanged.
 
-## D12. The R610 working copy's mounted trees are world-readable
+## D13. The R610 working copy's mounted trees are world-readable
 
 Recorded during Phase 2, before any Spark run completed. The
 first Spark submissions failed instantly: python3 could not
@@ -237,14 +253,14 @@ docker/conf) were made world-readable (a+rX). No file content
 changed, and the Git-tracked modes in the repository are
 untouched.
 
-## D13. Spark executors get a standalone CPython 3.8.19 via the distributed cache
+## D14. Spark executors get a standalone CPython 3.8.19 via the distributed cache
 
 Recorded during Phase 2, before any Spark run completed. With
-D11 and D12 fixed, the Spark job started and then lost every
+D12 and D13 fixed, the Spark job started and then lost every
 task: PySparkRuntimeError PYTHON_VERSION_MISMATCH, "Python in
 worker has different version (3, 6) than that in driver 3.8".
 The driver runs in the spark image (Python 3.8); the executors
-run in the Hadoop image (Python 3.6.8, DECISIONS.md D4), and
+run in the Hadoop image (Python 3.6.8, DECISIONS.md D5), and
 PySpark 3.5 refuses mixed minor versions. Provisioning step on
 the machine of record: cpython-3.8.19+20240415
 x86_64-unknown-linux-gnu-install_only.tar.gz from
@@ -258,16 +274,16 @@ points spark.pyspark.python at it. Executor interpreter
 provisioning only: the Spark job code, its input, and the H4
 comparison against MapReduce are unchanged.
 
-## D13 addendum. The driver interpreter is pinned separately
+## D14 addendum. The driver interpreter is pinned separately
 
-The first D13 submission failed in the driver: spark.pyspark
+The first D14 submission failed in the driver: spark.pyspark
 .python is the fallback for the driver-side interpreter too,
 so the driver tried to run the executor-relative archive path.
 spark.pyspark.driver.python is now pinned to the spark image's
 own /usr/bin/python3 (3.8), leaving the archive path to
 the workers only.
 
-## D13 addendum 2. The worker path is python/python/bin/python3.8
+## D14 addendum 2. The worker path is python/python/bin/python3.8
 
 The distributed-cache fragment (#python) names the directory
 the archive unpacks into; the tarball itself also has a
@@ -275,7 +291,7 @@ top-level python/ directory, so the interpreter lands at
 python/python/bin/python3.8 relative to the container working
 directory. Both worker settings now use that path.
 
-## D13 addendum 3. The shared tokenizer module ships with the Spark job
+## D14 addendum 3. The shared tokenizer module ships with the Spark job
 
 The workers then failed with ModuleNotFoundError: No module
 named 'common': the job imports tokenize from src/common.py on

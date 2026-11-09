@@ -83,7 +83,7 @@
 | spark | ii | full | combined | 1 | 2 | False | 1105.144 | None | None | None | ffdc1bdaa2bc | False |
 | spark | ii | full | combined | 1 | 3 | False | 1086.950 | None | None | None | ffdc1bdaa2bc | False |
 
-VOID CELL: job ii scale 1GiB layout small: operator stop before completion: warm-up run past 2.5 h with about 640 of 1055 maps complete (about 117 s slot time per 1 MiB map); cell not measured, H2 untested. See DECISIONS.md D10.
+VOID CELL: job ii scale 1GiB layout small: operator stop before completion: warm-up run past 2.5 h with about 640 of 1055 maps complete (about 117 s slot time per 1 MiB map); cell not measured, H2 untested. See DECISIONS.md D11.
 
 Ingest: scale full rf 1 warm-up True wall 58.708 s
 

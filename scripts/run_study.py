@@ -234,12 +234,12 @@ def run_mr(job, hdfs_in, hdfs_out):
         # script's filecache dir, not the task working directory
         # where _bootstrap.py and common.py land. Putting the task
         # working directory on PYTHONPATH restores the imports
-        # (DECISIONS.md D8).
+        # (DECISIONS.md D9).
         "-cmdenv", "PYTHONPATH=.",
         # The image's Python 3.6 under the C locale decodes stdin
         # as ASCII with surrogateescape, which silently splits
         # every non-ASCII token; the baseline reads UTF-8. Force
-        # UTF-8 on the task streams (DECISIONS.md D9).
+        # UTF-8 on the task streams (DECISIONS.md D10).
         "-cmdenv", "PYTHONIOENCODING=utf-8",
         "-mapper", "python3 %s" % spec["mapper"],
         "-combiner", "python3 %s" % spec["combiner"],
@@ -253,7 +253,7 @@ def run_mr(job, hdfs_in, hdfs_out):
     if r.returncode != 0:
         raise RuntimeError("MR job failed: %s" % (r.stderr or "")[-2000:])
     # The Hadoop 3.3.6 client prints the counter table to stdout,
-    # not stderr; parse both streams (DECISIONS.md D9).
+    # not stderr; parse both streams (DECISIONS.md D10).
     return wall, parse_counters((r.stdout or "") + (r.stderr or "")), r.stderr
 
 
@@ -415,7 +415,7 @@ def matrix(args):
         log_row({"kind": "void_cell", "job": "ii", "scale": "1GiB",
                  "layout": "small", "note": "checksum mismatch; void"})
 
-    # H3: replication at the top scale point (full corpus, DECISIONS.md D6), Job 1. Self-contained double ingest.
+    # H3: replication at the top scale point (full corpus, DECISIONS.md D7), Job 1. Self-contained double ingest.
     for rf in (1, 3):
         suffix = "_h3"
         w_warm = ingest("full", "combined", rf, suffix=suffix)
@@ -450,7 +450,7 @@ def spark(args):
         # executors land in the Hadoop image, whose python3 is
         # 3.6.8; PySpark refuses the mismatch
         # (PYTHON_VERSION_MISMATCH). A standalone CPython 3.8.19
-        # (python-build-standalone, DECISIONS.md D13) is shipped
+        # (python-build-standalone, DECISIONS.md D14) is shipped
         # to the executors through the distributed cache and used
         # as the worker interpreter. The job code, data, master,
         # and the H4 comparison are unchanged.

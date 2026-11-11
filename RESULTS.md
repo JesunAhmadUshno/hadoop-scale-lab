@@ -3,7 +3,7 @@
 ## Verdicts (frozen rules, PREREGISTRATION.md)
 
 - H1: **CONFIRMED**. R(full)=0.963, R(0.1 GiB)=2.288
-- H2: **INCONCLUSIVE**. a needed cell is missing or void
+- H2: **CONFIRMED**. small-file cost 1251.7%
 - H3: **INCONCLUSIVE**. write penalty 29.5%, job penalty -0.1%
 - H4: **REFUTED**. spark 1087.0s vs MR 954.5s
 
@@ -82,6 +82,10 @@
 | spark | ii | full | combined | 1 | 1 | False | 1085.642 | None | None | None | ffdc1bdaa2bc | False |
 | spark | ii | full | combined | 1 | 2 | False | 1105.144 | None | None | None | ffdc1bdaa2bc | False |
 | spark | ii | full | combined | 1 | 3 | False | 1086.950 | None | None | None | ffdc1bdaa2bc | False |
+| mapreduce | ii | 1GiB | small | 1 | 0 | True | n/a | 556916452 | 1073857013 | 423331743 | 2c99665ced2d | False |
+| mapreduce | ii | 1GiB | small | 1 | 1 | False | 7750.235 | 556916452 | 1073857013 | 423331743 | 2c99665ced2d | False |
+| mapreduce | ii | 1GiB | small | 1 | 2 | False | 7737.209 | 556916452 | 1073857013 | 423331743 | 2c99665ced2d | False |
+| mapreduce | ii | 1GiB | small | 1 | 3 | False | 7713.201 | 556916452 | 1073857013 | 423331743 | 2c99665ced2d | False |
 
 VOID CELL: job ii scale 1GiB layout small: operator stop before completion: warm-up run past 2.5 h with about 640 of 1055 maps complete (about 117 s slot time per 1 MiB map); cell not measured, H2 untested. See DECISIONS.md D11.
 

@@ -5,7 +5,7 @@
 # apt) and CentOS 7 is end of life: mirror.centos.org is retired,
 # so the repos are pointed at vault.centos.org before installing.
 # This yields Python 3.6.8 in task containers (DECISIONS.md D4).
-FROM apache/hadoop:3.3.6
+FROM apache/hadoop:3.5.0
 USER root
 RUN sed -i -e 's/mirror.centos.org/vault.centos.org/g' \
         -e 's/^mirrorlist/#mirrorlist/g' \

@@ -142,3 +142,11 @@ cluster containers and volumes.
 ## License
 
 See LICENSE.
+
+## Paper
+
+Jesun Ahmad Ushno. "Where MapReduce Catches Up: A Pre-registered Scale Ladder, the Small-File Effect Measured at 1,251.7 Percent, and a Spark Hypothesis Refuted." Preprint, Zenodo, version 2 (2026). CC-BY 4.0.
+
+- Concept DOI: [10.5281/zenodo.24282234](https://doi.org/10.5281/zenodo.24282234)
+- Version 2 DOI: [10.5281/zenodo.24283816](https://doi.org/10.5281/zenodo.24283816)
+- Software DOI for this code (release v1.0.0): [10.5281/zenodo.24282384](https://doi.org/10.5281/zenodo.24282384)

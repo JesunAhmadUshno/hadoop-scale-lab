@@ -4,13 +4,17 @@ This file is the report in the portfolio standard's sense. It keeps
 the name AUDIT.md because the locked PREREGISTRATION.md names it as
 the place where co-tenancy during runs is recorded.
 
-Status, 2026-11-09: Phase 2 is complete. The timed matrix ran on
+Status, 2026-11-11: Phase 3 is complete. The timed matrix ran on
 the machine of record (Dell R610, Ubuntu 24.04.5, 94 GiB RAM,
-16 cores) on 2026-11-08 and 2026-11-09, and the compose cluster
-was torn down at close. Verdicts, computed by
+16 cores) on 2026-11-08 and 2026-11-09 (Phase 2), and the one
+cell Phase 2 left unmeasured, the H2 small-file cell, was
+measured on 2026-11-11 under the owner's explicit authorization
+(DECISIONS.md D15, D16). The compose cluster was torn down at
+each close. Verdicts, computed by
 scripts/make_results.py from results/raw_runs.jsonl under the
-rules frozen in PREREGISTRATION.md: H1 CONFIRMED, H2 INCONCLUSIVE
-(the small-file cell was stopped unmeasured, DECISIONS.md D11),
+rules frozen in PREREGISTRATION.md: H1 CONFIRMED, H2 CONFIRMED
+(small-file cost 1251.7 percent: median 7737.209 s over 1,055
+files against the combined layout's 572.420 s over 9 files),
 H3 INCONCLUSIVE (write penalty 29.5 percent, job penalty -0.1
 percent), H4 REFUTED (Spark median 1087.0 s against the MapReduce
 median of 954.5 s). RESULTS.md carries the full tables.
@@ -27,12 +31,14 @@ median of 954.5 s). RESULTS.md carries the full tables.
 2. Correctness before speed, in code. The Phase 2 driver
    (scripts/run_study.py) hashes every run's canonical output
    and voids the cell on any mismatch with the baseline; the
-   void is written to the raw run log. Across the final matrix
-   (60 run records: 15 warm-up, 45 timed), zero runs are marked
+   void is written to the raw run log. Across the full run log
+   (64 run records: 16 warm-up, 48 timed), zero runs are marked
    void and every timed run's hash equals its baseline
-   reference, including all four Spark runs. One cell is
-   recorded as a void_cell: the H2 small-file cell, stopped
-   unmeasured (D11). The same equality is exercised without a
+   reference, including all four Spark runs and the four
+   Phase 3 small-file runs. One record is a void_cell: the
+   Phase 2 stop of the H2 small-file cell (D11), kept as
+   history; the cell it names was measured in Phase 3 (D15,
+   D16). The same equality is exercised without a
    cluster by tests/test_equivalence.py: both jobs, through a
    local pipe, match the DuckDB baseline byte for byte after
    canonical sorting, including a zero-token document and
@@ -88,6 +94,28 @@ and baseline reference. All figures check out; the verdicts
 stand as computed by the frozen rules. The spec was written
 before the standard-v2 merge renumbered DECISIONS.md; its D6
 and D10 are D7 and D11 in the merged file.
+
+## Jev claim_check (Phase 3 close)
+
+The H2 verdict was checked with the house Jev gate
+(claim_check) at Phase 3 close. Spec and result are filed as
+hadoop-scale-lab-h2-claim-spec-2026-11-11.json and
+hadoop-scale-lab-h2-claim-results-2026-11-11.json beside the
+gate client. The call returned HTTP 200, model jev-1.13.0,
+question id supported, usage 1587 input tokens and 20 output
+tokens, and a noul of 0.21. Under the standing bands (clear
+at 0.85 or above, block at 0.10 or below) the route is
+REVIEW, so every figure in the claim was verified by hand
+against results/raw_runs.jsonl before the verdict was
+allowed to stand: the three timed walls (7750.235, 7737.209,
+7713.201 s) and their median (7737.209 s), the combined
+comparator's median (572.420 s, from 572.420, 572.231, and
+632.935 s), the cost arithmetic ((7737.209 - 572.420) /
+572.420 = 1251.7 percent), the output hash equality on all
+four small-cell runs, the record counts (69: 64 runs,
+4 ingests, 1 void_cell; zero void runs), and the file counts
+(1,055 small, 9 combined). All figures check out; the
+verdict stands as computed by the frozen rule.
 
 ## Deviations and incidents on record
 
@@ -148,8 +176,14 @@ runs it affected:
   completed map on a mean input of about 1 MiB). Three timed
   runs projected past 20 further hours on a shared production
   machine. The partial counters are recorded in DECISIONS.md
-  as observations only. H2 has no verdict from data; the
-  results script reports the missing cell as INCONCLUSIVE.
+  as observations only. At Phase 2 close H2 had no verdict
+  from data; the results script reported the missing cell as
+  INCONCLUSIVE. In Phase 3 the owner authorized the cell
+  (D15) and it was measured (D16): the warm-up completed in
+  about 2.25 hours and the timed runs landed at 7713 to
+  7750 s each, so the cell took about 8.75 hours end to end,
+  well inside the projection that had justified the stop.
+  H2 is CONFIRMED.
 - D12 to D14: Spark environment completions: the absolute
   spark-submit path (D12), world-readable mounts for the Spark
   container's uid (D13), and a standalone CPython 3.8.19
@@ -159,6 +193,23 @@ runs it affected:
   because PySpark refuses the driver 3.8 and executor 3.6
   version split the two frozen images produce. The Spark job
   file, its input, and the H4 comparison are unchanged.
+
+Phase 3 items, in DECISIONS.md:
+
+- D15: the owner authorized the H2 cell in writing on
+  2026-11-11, superseding the D11 stop for that cell only.
+  Only the driver's H2 block ran (ingest plus timed_cell_mr
+  against the Phase 2 baseline reference); no other cell was
+  re-run and no Phase 2 row changed. The D3 start gate was
+  implemented as a wrapper on the driver's run function and
+  fired once. Before the run, the 1 GiB subset hash and the
+  small layout's file count were re-verified on the machine
+  against the committed manifests.
+- D16: the outcome. Three timed runs at 7750.235, 7737.209,
+  and 7713.201 s (median 7737.209 s), every output hash equal
+  to the baseline reference, zero void runs. Against the
+  combined median of 572.420 s the small-file cost is 1251.7
+  percent, and H2 is CONFIRMED under the frozen rule.
 - The first matrix launch crashed on its first baseline call
   because results/outputs did not exist on the fresh working
   copy. No timed run had been logged and no cell was
@@ -190,6 +241,21 @@ at preflight. All other services were verified untouched at
 teardown, and the compose project (hadoop-scale-lab) was the
 only stack stopped or removed.
 
+Phase 3 (2026-11-11) ran under the same conditions: the same
+services stayed live while the small-file cell executed
+(ingest from 05:50 UTC, timed runs to 14:34 UTC), the cluster
+ran under the same deployed caps (7 CPUs, 21.5 GiB), and the
+D3 start gate held run starts out of the backup window and
+the first five minutes of each hour (it fired once, at
+08:04 UTC). The runs are about 2.15 hours each, so the
+host's scheduled windows were crossed during execution; that
+is inherent to a cell of this length and is recorded here
+rather than hidden. At teardown the compose project was
+removed completely (containers, volumes, network) and the
+other services were verified again: Penpot answers HTTP 200
+on port 9001 with all 8 containers up, Cockpit listens on
+9090, xrdp on 3389, and the host was not rebooted.
+
 ## Threats to validity
 
 - One machine, one shared host. The R610 also runs Penpot,
@@ -216,8 +282,12 @@ only stack stopped or removed.
   tasks on Python 3.6.8, the baseline on Python 3.12.3. The
   final matrix is checksum-clean, so no measured cell shows a
   divergence; the asymmetry is recorded, not hidden.
-- One hypothesis is missing its cell (D11). H2's verdict is a
-  statement about the run log, not about small files; the
-  bounded observation in D11 (a warm-up that could not finish
-  1 GiB in 1 MiB files in 2.5 hours under the frozen caps) is
-  evidence about scheduling cost, and is labelled as such.
+- H2's margin dwarfs its noise. The measured cost (1251.7
+  percent) stands about 83 times above the 15 percent pass
+  line, and the three timed runs span only 37 s (0.5 percent)
+  around their median, so co-tenancy noise, the crossed
+  scheduled windows during the long runs, and the
+  pseudo-distributed configuration cannot plausibly move
+  this verdict. The claim is for this frozen configuration
+  (1 MiB files, 4 reducers, the deployed caps) on this host,
+  not for small files in general.

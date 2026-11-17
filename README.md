@@ -11,17 +11,25 @@ corpus, 1.85 GiB of extracted text) after trailing at 0.1 GiB
 (ratio 2.288). Replication costs 29.5 percent on ingest and
 nothing measurable on job time. Spark on YARN is slower than
 MapReduce at this scale (median 1087.0 s vs 954.5 s). The
-small-file cell was stopped unmeasured (DECISIONS.md D11).
+small-file cell, stopped unmeasured in Phase 2 (DECISIONS.md
+D11), was authorized and measured in Phase 3 (D15, D16): the
+small-file layout costs 1,251.7 percent at 1 GiB, and H2 is
+CONFIRMED.
 
 **Field.** Systems, performance measurement. **Job family.** Data
 engineering.
 
-**Verdict.** Evaluated. H1 CONFIRMED, H2 INCONCLUSIVE (the cell was not
-measured), H3 INCONCLUSIVE, H4 REFUTED, computed by
-scripts/make_results.py from results/raw_runs.jsonl under the
-rules frozen in PREREGISTRATION.md. The full tables are in
-RESULTS.md; the report is AUDIT.md; the deviation record is
-DECISIONS.md D1 to D14. No number in this repository comes from
+**Verdict.** Evaluated. H1 CONFIRMED, H2 CONFIRMED (measured in
+Phase 3, DECISIONS.md D15 and D16), H3 INCONCLUSIVE, H4
+REFUTED, computed by scripts/make_results.py from
+results/raw_runs.jsonl under the rules frozen in
+PREREGISTRATION.md. The full tables are in RESULTS.md; the
+report is AUDIT.md; the deviation record is DECISIONS.md D1
+to D17. (This headline and verdict text was corrected on
+2026-11-16: as first written it still described the Phase 2
+state, in which the H2 cell was unmeasured. The generated
+RESULTS.md and the decision log governed throughout.) No
+number in this repository comes from
 any machine other than the R610.
 
 ## Problem

@@ -16,7 +16,7 @@ small-file cell was stopped unmeasured (DECISIONS.md D11).
 **Field.** Systems, performance measurement. **Job family.** Data
 engineering.
 
-**Verdict.** H1 CONFIRMED, H2 INCONCLUSIVE (the cell was not
+**Verdict.** Evaluated. H1 CONFIRMED, H2 INCONCLUSIVE (the cell was not
 measured), H3 INCONCLUSIVE, H4 REFUTED, computed by
 scripts/make_results.py from results/raw_runs.jsonl under the
 rules frozen in PREREGISTRATION.md. The full tables are in

@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from common import BAND_IDS, band_line  # noqa: E402
 
-SCALES = ["0.1GiB", "1GiB", "5GiB"]
+SCALES = ["0.1GiB", "1GiB", "full"]
 JOBS = {
     "ii": {
         "mapper": "ii_mapper.py",
@@ -229,6 +229,18 @@ def run_mr(job, hdfs_in, hdfs_out):
         "-D", "mapreduce.job.reduces=4",
         "-D", "dfs.replication=1",
         "-files", ",".join(files),
+        # YARN localizes -files as symlinks into per-file filecache
+        # directories, so the interpreter's sys.path[0] is the
+        # script's filecache dir, not the task working directory
+        # where _bootstrap.py and common.py land. Putting the task
+        # working directory on PYTHONPATH restores the imports
+        # (DECISIONS.md D9).
+        "-cmdenv", "PYTHONPATH=.",
+        # The image's Python 3.6 under the C locale decodes stdin
+        # as ASCII with surrogateescape, which silently splits
+        # every non-ASCII token; the baseline reads UTF-8. Force
+        # UTF-8 on the task streams (DECISIONS.md D10).
+        "-cmdenv", "PYTHONIOENCODING=utf-8",
         "-mapper", "python3 %s" % spec["mapper"],
         "-combiner", "python3 %s" % spec["combiner"],
         "-reducer", "python3 %s" % spec["reducer"],
@@ -240,7 +252,9 @@ def run_mr(job, hdfs_in, hdfs_out):
     wall = time.monotonic() - t0
     if r.returncode != 0:
         raise RuntimeError("MR job failed: %s" % (r.stderr or "")[-2000:])
-    return wall, parse_counters(r.stderr), r.stderr
+    # The Hadoop 3.3.6 client prints the counter table to stdout,
+    # not stderr; parse both streams (DECISIONS.md D10).
+    return wall, parse_counters((r.stdout or "") + (r.stderr or "")), r.stderr
 
 
 def canonical_file_sha(path):
@@ -301,6 +315,7 @@ def collect_mr(hdfs_out, job, tag):
 
 
 def run_baseline(job, scale, tag):
+    os.makedirs(OUTPUTS, exist_ok=True)
     out_path = os.path.join(OUTPUTS, "%s.txt" % tag)
     cmd = [
         sys.executable, os.path.join(ROOT, "src", "baseline.py"),
@@ -400,20 +415,20 @@ def matrix(args):
         log_row({"kind": "void_cell", "job": "ii", "scale": "1GiB",
                  "layout": "small", "note": "checksum mismatch; void"})
 
-    # H3: replication at 5 GiB, Job 1. Self-contained double ingest.
+    # H3: replication at the top scale point (full corpus, DECISIONS.md D7), Job 1. Self-contained double ingest.
     for rf in (1, 3):
         suffix = "_h3"
-        w_warm = ingest("5GiB", "combined", rf, suffix=suffix)
-        log_row({"kind": "ingest", "scale": "5GiB", "layout": "combined",
+        w_warm = ingest("full", "combined", rf, suffix=suffix)
+        log_row({"kind": "ingest", "scale": "full", "layout": "combined",
                  "rf": rf, "warmup": True, "wall_s": round(w_warm, 3)})
-        w = ingest("5GiB", "combined", rf, suffix=suffix)
-        log_row({"kind": "ingest", "scale": "5GiB", "layout": "combined",
+        w = ingest("full", "combined", rf, suffix=suffix)
+        log_row({"kind": "ingest", "scale": "full", "layout": "combined",
                  "rf": rf, "warmup": False, "wall_s": round(w, 3)})
-        rows, ok = timed_cell_mr("ii", "5GiB", "combined", rf=rf,
+        rows, ok = timed_cell_mr("ii", "full", "combined", rf=rf,
                                  suffix=suffix,
-                                 ref_sha=ref_shas[("ii", "5GiB")])
+                                 ref_sha=ref_shas[("ii", "full")])
         if not ok:
-            log_row({"kind": "void_cell", "job": "ii", "scale": "5GiB",
+            log_row({"kind": "void_cell", "job": "ii", "scale": "full",
                      "layout": "combined", "rf": rf,
                      "note": "checksum mismatch; void"})
     print("matrix complete")
@@ -425,11 +440,34 @@ def spark(args):
         print("H4 is optional; pass --confirm-optional to run it")
         return 1
     compose("up", "-d", "spark-client", profile="spark")
-    hin = "hdfs:///data/5GiB_combined"
-    hout = "hdfs:///out/ii_spark_5GiB"
-    cexec("hdfs", "dfs", "-rm", "-r", "-f", "/out/ii_spark_5GiB")
+    hin = "hdfs:///data/full_combined"
+    hout = "hdfs:///out/ii_spark_full"
+    cexec("hdfs", "dfs", "-rm", "-r", "-f", "/out/ii_spark_full")
     cmd = [
-        "spark-submit", "--master", "yarn", "--deploy-mode", "client",
+        "/opt/spark/bin/spark-submit", "--master", "yarn",
+        "--deploy-mode", "client",
+        # The driver runs the spark image's Python 3.8 while YARN
+        # executors land in the Hadoop image, whose python3 is
+        # 3.6.8; PySpark refuses the mismatch
+        # (PYTHON_VERSION_MISMATCH). A standalone CPython 3.8.19
+        # (python-build-standalone, DECISIONS.md D14) is shipped
+        # to the executors through the distributed cache and used
+        # as the worker interpreter. The job code, data, master,
+        # and the H4 comparison are unchanged.
+        "--conf",
+        "spark.yarn.dist.archives=/work/spark/pbs38.tar.gz#python",
+        "--conf", "spark.pyspark.python=python/python/bin/python3.8",
+        # spark.pyspark.python is also the driver's fallback
+        # interpreter; pin the driver to the spark image's own
+        # Python 3.8 so only the workers use the archive path.
+        "--conf",
+        "spark.pyspark.driver.python=/usr/bin/python3",
+        "--conf",
+        "spark.executorEnv.PYSPARK_PYTHON=python/python/bin/python3.8",
+        # The job imports the shared tokenizer (src/common.py) on
+        # the driver; its closures reference the module by name,
+        # so the workers need the module shipped with the job.
+        "--py-files", "/work/src/common.py",
         "/work/spark/inverted_index_spark.py",
         "--input", hin, "--output", hout,
     ]
@@ -442,7 +480,7 @@ def spark(args):
     # Three timed runs are required by the protocol; this subcommand
     # performs one invocation per call by design, so call it 3 times
     # after one warm-up call with --warmup.
-    sha, _n = collect_mr("/out/ii_spark_5GiB", "ii", "spark_ii_5GiB")
+    sha, _n = collect_mr("/out/ii_spark_full", "ii", "spark_ii_full")
     # The checksum rule applies to the optional arm too: compare
     # against the baseline reference hash already in the run log.
     ref_sha = None
@@ -451,12 +489,12 @@ def spark(args):
             for line in f:
                 row = json.loads(line)
                 if (row.get("arm") == "baseline" and row.get("job") == "ii"
-                        and row.get("scale") == "5GiB"):
+                        and row.get("scale") == "full"):
                     ref_sha = row.get("output_sha256")
                     break
     void = ref_sha is not None and sha != ref_sha
     log_row({
-        "kind": "run", "arm": "spark", "job": "ii", "scale": "5GiB",
+        "kind": "run", "arm": "spark", "job": "ii", "scale": "full",
         "layout": "combined", "rf": 1, "run_index": args.run_index,
         "warmup": args.warmup,
         "wall_s": None if args.warmup else round(wall, 3),

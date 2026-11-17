@@ -1,0 +1,21 @@
+src:
+  - changed-files:
+      - any-glob-to-any-file: ["src/**"]
+spark:
+  - changed-files:
+      - any-glob-to-any-file: ["spark/**"]
+jobs:
+  - changed-files:
+      - any-glob-to-any-file: ["jobs/**"]
+scripts:
+  - changed-files:
+      - any-glob-to-any-file: ["scripts/**", "docker/**", "docker-compose.yml"]
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ["tests/**"]
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ["README.md", "CHANGELOG.md"]
+automation:
+  - changed-files:
+      - any-glob-to-any-file: [".github/**"]

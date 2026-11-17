@@ -375,3 +375,20 @@ byte-identical on a second regeneration. The D11 partial
 counters remain observations only; they played no part in
 this verdict. The cluster was torn down at close and the
 host's other services verified untouched (AUDIT.md).
+## D17. Post-registration amendment: run-dispersion analysis of the recorded runs (registered before computation)
+
+Recorded 2026-11-16, before the computation ran. The timed runs
+themselves are finished and cannot be repeated here (the machine of
+record is the R610 host; this analysis runs on the recorded log).
+The paper reports medians of three timed runs per cell and no
+dispersion. This amendment computes, from results/raw_runs.jsonl
+only, for every timed cell of both jobs and for the H2, H3, and H4
+cells: the three run values, the median, the min-to-max range, and
+the range as a percentage of the median. The checksum gate's record
+is also summarised: the number of distinct output hashes per job
+and scale across arms (the frozen protocol requires exactly one).
+No new runs, no changed verdicts: H1 CONFIRMED, H2 CONFIRMED, H3
+INCONCLUSIVE, and H4 REFUTED stand as frozen. The table is reported
+as an amendment in version 2 of the preprint (Zenodo DOI
+10.5281/zenodo.24282235). Output: the dispersion table computed
+from the log, quoted in the paper's version 2 note and appendix.

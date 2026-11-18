@@ -1,0 +1,6 @@
+{
+  "docker_ps": "penpot-penpot-frontend-1 Up 3 weeks\npenpot-penpot-backend-1 Up 3 weeks\npenpot-penpot-exporter-1 Up 3 weeks\npenpot-penpot-admin-console-1 Up 3 weeks\npenpot-penpot-postgres-1 Up 3 weeks (healthy)\npenpot-penpot-mcp-1 Up 3 weeks\npenpot-penpot-mailpit-1 Up 3 weeks (healthy)\npenpot-penpot-valkey-1 Up 3 weeks (healthy)",
+  "free": "total        used        free      shared  buff/cache   available\nMem:            94Gi        17Gi        27Gi       155Mi        50Gi        77Gi\nSwap:          8.0Gi       4.0Mi       8.0Gi",
+  "load": "0.19 0.29 0.50 1/1908 2188512",
+  "nproc": "16"
+}

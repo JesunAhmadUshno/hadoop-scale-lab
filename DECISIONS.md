@@ -392,3 +392,32 @@ INCONCLUSIVE, and H4 REFUTED stand as frozen. The table is reported
 as an amendment in version 2 of the preprint (Zenodo DOI
 10.5281/zenodo.24282235). Output: the dispersion table computed
 from the log, quoted in the paper's version 2 note and appendix.
+
+## D18. Gap-closure re-execution on the machine of record (2026-11-17)
+
+Registered 2026-11-17, before any re-run, under Jesun's gap-closure order of the same day. Numbered D18 to follow the canonical repository's D17; the R610 working copy's own decision list ends at D13 addendum 3, and this entry is appended identically to both copies.
+
+Scope. The timed runs were never re-executed after the study closed (the Compose cluster was torn down at teardown, volumes removed). This entry registers a re-execution of the two H1 anchor cells only: Job 1 (ii) at 0.1 GiB and at full (1.85 GiB), both arms, warm-up plus three timed runs per cell, using scripts/run_study.py's own cell functions (timed_cell_baseline, timed_cell_mr) with the frozen void rule. The cluster is rebuilt exactly as docker-compose.yml defines it (image hadoop-scale-lab/hadoop:3.3.6-py, already present on the host; compose up without --build, project name hadoop-scale-lab). No other service on the host is touched.
+
+Outputs. All re-execution rows go to a new file, results/rerun_2026-11-17_raw_runs.jsonl, and all collected outputs to a new directory, results/rerun_2026-11-17_outputs/. results/raw_runs.jsonl, RESULTS.md, and every committed output stay untouched. Comparison is against the committed medians: R(0.1 GiB) = 2.288 (baseline 49.871 s, MapReduce 114.125 s) and R(full) = 0.963 (baseline 990.793 s, MapReduce 954.534 s). Reproduction is claimed only if the fresh output hashes match the committed hashes (ii 0.1 GiB c34381cf0ea8, full ffdc1bdaa2bc) and the fresh median ratios are reported beside the committed ones, whatever they are.
+
+Ladder disposition. The ordered extension toward 5 GiB is NOT run, and this entry records why before the anchors run: the repository contains no corpus-extension method. PREREGISTRATION.md freezes the fallback for a corpus smaller than 5 GiB, and D7 applied it: the full extraction of the verified dump yields 1,984,437,310 bytes, so the top rung IS the full corpus. A cell above 1.85 GiB would need a new corpus (a larger or second dump) under a new amendment and an owner decision; it cannot be produced from this repo's own methods. The gap therefore stays open as a corpus decision, not a compute gap.
+
+Co-tenancy note. The host is a live fleet machine (Ollama and the Penpot stack resident). Load at registration: 0.33 / 0.31 / 0.56, 77 GiB memory available, 74 GiB free on the root disk. The original matrix also ran under co-tenancy on this host; the re-execution host state is saved beside the new raw runs.
+
+## D19. Gap-closure re-execution outcome (2026-11-18)
+
+The D18 re-execution completed on the R610. Both H1 anchor cells ran in
+full (warm-up plus three timed runs per arm; no run void). Fresh output
+hashes matched the committed hashes on every run. Fresh medians beside
+committed medians: 0.1 GiB baseline 49.788 s (committed 49.871),
+MapReduce 115.031 s (committed 114.125), fresh ratio 2.311 (committed
+2.288); full corpus baseline 996.680 s (committed 990.793), MapReduce
+945.739 s (committed 954.534), fresh ratio 0.949 (committed 0.963). The
+H1 reading reproduces: the MapReduce penalty at small scale and the
+crossover below 1 at full corpus both stand on fresh runs. Full detail:
+results/rerun_2026-11-17_summary.md. The rebuilt cluster was torn down
+after the runs (docker compose down -v), returning the host to the
+study end state; the resident fleet services (Ollama, Penpot) were not
+touched. The ladder extension toward 5 GiB stays open as a corpus
+decision per D18, not a compute gap.
